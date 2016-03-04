@@ -1,0 +1,10 @@
+install mongodb
+install pymongo
+install node.js
+install express
+install express-generator
+install mongoose
+npm install request
+npm install -g https-proxy-agent
+npm install python-shell
+

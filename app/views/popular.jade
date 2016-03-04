@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  section(id="main" class="wrapper style1")
+    header(class="major")
+      h2 #{pageTitle}
+      p #{pageDescription}
+    each listing, i in listingArray
+      section(class="wrapperLight style1")
+        div(class="container")
+          div(class="row")
+            a(href= listing.url): img(src= listing.image align="left")
+            pre #{listing.title}
+              | Category: #{listing.taxonomy_path}
+              | Favorers: #{listing.num_favorers}
+              | Views: #{listing.views}
+
+  include ./includes/foot.jade

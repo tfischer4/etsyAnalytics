@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  section(id="main" class="wrapper style1")
+    header(class="major")
+      h2 #{title}
+
+    div(class="searchBox")
+      form(name="tagSearch", id="tagSearch", action="/tag", method="post")
+        div(class="inputField")
+          input(type="text", name="tagInput", id="tagInput", required)
+        div(class="submitField")
+          input(type="submit", value="search")
+  section(class="wrapperLight style1")
+    div(class="container", id="searchResults", style="text-align:center")
+
+  script.
+    //callback handler for form submit
+    $("#tagSearch").submit(function(e)
+    {
+      var postData = $("#tagInput").val();
+      var formURL = $(this).attr("action");
+      $.ajax(
+      {
+        url : formURL,
+        type: "POST",
+        data : {tag: postData},
+        success:function(data, textStatus, jqXHR) 
+        {
+            //data: return data from server
+            console.log(data);
+            var arrayLength = data.length - 1;
+            for (var i = arrayLength; i >= 0; i--) {
+              var code = '<div class="searchResults"><p>' + data[i].tag + '</p></div>';
+              $("#searchResults").after(code);
+            }     
+        },
+        error: function(jqXHR, textStatus, errorThrown) 
+        {
+            //if fails      
+        }
+      });
+      e.preventDefault(); //STOP default action
+      e.unbind(); //unbind. to stop multiple form submit.
+    });
+ 
+    // $("#tagSearch").submit(); //Submit  the FORM
+
+
+
+  include ./includes/foot.jade

@@ -1,5 +1,8 @@
+var Config = require('config-js');
+var config = new Config('./routes/conf/keys.js');
+var apiKey = config.get('etsy.key');
+
 var request = require("request");
-var apiKey = 
 
 
 module.exports = {

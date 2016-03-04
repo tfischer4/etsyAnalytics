@@ -7,4 +7,4 @@ install mongoose
 npm install request
 npm install -g https-proxy-agent
 npm install python-shell
-
+npm install config-js

@@ -14,7 +14,18 @@ if len(sys.argv) > 2:
   print 'ERROR: Too many parameters passed--', sys.argv
   sys.exit(2)
 
-apiKey = 
+pwdFile = '../../../.pwd'
+with open(pwdFile) as f:
+  credentials = [x.strip().split("\t") for x in f.readlines()]
+
+for app,username,password in credentials:
+  if app == 'axpProxy':
+    userNm = username
+    passWd = password
+  if app == 'etsyAPIKey':
+    apiKey = password
+
+
 apiCnt = 0
 baseURI = 'https://openapi.etsy.com/v2'
 input = sys.argv[1]
@@ -24,9 +35,7 @@ sortOn = 'created'
 sortOrder = 'up'
 
 # AXP Proxy Details
-userNm = 'tfische'
 # passWd = getpass.getpass()
-passWd = 
 opener = urllib2.build_opener(urllib2.ProxyHandler({'https': 'https://tfische:' + passWd + '@proxy-newyork.aexp.com:8080'}))
 proxyFlag = 1;
 

@@ -842,6 +842,7 @@
 
 	.wrapperLight {
 		padding: 1em 0 1em 0;
+		min-height: 250px;
 	}
 
 	.wrapper {
@@ -882,6 +883,12 @@
 				.wrapper.style2 .button.alt.icon:before {
 					color: #a3a5a7;
 				}
+
+		.wrapper.style3 {
+			background: #fff;
+			color: #555f66;
+			min-height: 350px;
+		}
 
 /* Header */
 

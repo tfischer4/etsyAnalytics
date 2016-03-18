@@ -10,34 +10,21 @@ if len(sys.argv) < 2:
   print 'ERROR: Tag parameter not passed--', sys.argv
   sys.exit(2)
 
-if len(sys.argv) > 2:
-  print 'ERROR: Too many parameters passed--', sys.argv
-  sys.exit(2)
-
-pwdFile = '../../../.pwd'
-with open(pwdFile) as f:
-  credentials = [x.strip().split("\t") for x in f.readlines()]
-
-for app,username,password in credentials:
-  if app == 'axpProxy':
-    userNm = username
-    passWd = password
-  if app == 'etsyAPIKey':
-    apiKey = password
-
-
-apiCnt = 0
-baseURI = 'https://openapi.etsy.com/v2'
 input = sys.argv[1]
+baseURI = sys.argv[2]
+apiKey = sys.argv[3]
+proxyURI = sys.argv[4]
+proxyFlag = int(sys.argv[5])
+
 limit = 100
 offset = 0
-sortOn = 'created'
-sortOrder = 'up'
+sortOn = 'score' #'created'
+sortOrder = 'down' #'up'
+apiCnt = 0
 
 # AXP Proxy Details
 # passWd = getpass.getpass()
-opener = urllib2.build_opener(urllib2.ProxyHandler({'https': 'https://tfische:' + passWd + '@proxy-newyork.aexp.com:8080'}))
-proxyFlag = 1;
+opener = urllib2.build_opener(urllib2.ProxyHandler({'https': proxyURI}))
 
 # Call Etsy API and get JSON
 def getJson(uri, opener, proxyFlag):
@@ -54,7 +41,7 @@ def getJson(uri, opener, proxyFlag):
 
 # Etsy API request
 def getListingsFromTag(baseURI, tag, apiKey, limit, offset, opener, proxyFlag):
-    uri = baseURI + '/listings/active?api_key=' + apiKey + "&limit=" + str(limit) + "&offset=" + str(offset) + "&tags=" + tag + "&sort_on=" + sortOn + "&sort_order=" + sortOrder
+    uri = baseURI + '/listings/active?api_key=' + apiKey + "&limit=" + str(limit) + "&offset=" + str(offset) + "&keywords=" + tag + "&sort_on=" + sortOn + "&sort_order=" + sortOrder
     return getJson(uri, opener, proxyFlag)
 
 

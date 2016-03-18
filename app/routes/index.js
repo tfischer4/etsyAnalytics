@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/tag', function(req, res, next) {
-  res.render('search', { title: 'Tag Search'});
+  res.render('search', { title: 'Tag Search', action: '/tag' });
 });
 
 router.post('/tag', function (req, res) {
@@ -23,6 +23,21 @@ router.post('/tag', function (req, res) {
   console.log('This is the tag: ', tag);
 
   pyTags.getTags(tag, function(err, t) {
+    res.send(t);
+    console.log("DONE")
+  });
+});
+
+router.get('/search', function(req, res, next) {
+  res.render('search', { title: 'Keyword Search', action: '/search' });
+});
+
+router.post('/search', function (req, res) {
+  var tag = req.body.tag;
+  console.log('This is the data: ', req.body);
+  console.log('This is the tag: ', tag);
+
+  pyTags.getKeywords(tag, function(err, t) {
     res.send(t);
     console.log("DONE")
   });

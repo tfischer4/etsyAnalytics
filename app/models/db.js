@@ -1,8 +1,11 @@
+var config = require('config');
+var dbURI = config.get('mongodb.uri');
+
 // Bring Mongoose into the app 
 var mongoose = require( 'mongoose' ); 
 
 // Build the connection string 
-var dbURI = 'mongodb://localhost/etsy'; 
+// var dbURI = 'mongodb://localhost/etsy'; 
 
 // Create the database connection 
 mongoose.connect(dbURI); 

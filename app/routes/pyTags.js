@@ -1,12 +1,18 @@
 var PythonShell = require('python-shell');
 
+var config = require('config');
+var apiKey = config.get('etsy.key');
+var baseURI= config.get('etsy.baseURI');
+var axpURI = config.get('axpProxy.uri');
+var axpFlg = config.get('axpProxy.flg');
+
 
 module.exports = {
   getTags : function( tag, _callBack) {
     var options = {
       mode: 'json',
       scriptPath: '/Users/tfische/Projects/Etsy/app/routes/python',
-      args: [tag]
+      args: [tag, baseURI, apiKey, axpURI, axpFlg]
     };
 
     var pyshell = new PythonShell('etsyTagModel.py', options);
@@ -21,16 +27,30 @@ module.exports = {
       console.log('finished for tag: %j', tag);
     });
 
+  }
+};
 
-/*
-    var shell = PythonShell.run('etsyTagModel.py', options, function (err, results) {
-      if (err) throw err;
-      // results is an array consisting of messages collected during execution 
-      console.log('results: %j', results[0]);
 
-      _callBack(null, JSON.parse(results[0]));
+module.exports = {
+  getKeywords : function( tag, _callBack) {
+    var options = {
+      mode: 'json',
+      scriptPath: '/Users/tfische/Projects/Etsy/app/routes/python',
+      args: [tag, baseURI, apiKey, axpURI, axpFlg]
+    };
+
+    var pyshell = new PythonShell('etsyNMFModel.py', options);
+
+    pyshell.on('message', function (message) {
+      console.log(message);
+      _callBack(null, message);
     });
-*/
+
+    pyshell.end(function (err) {
+      if (err) throw err;
+      console.log('finished for tag: %j', tag);
+    });
+
   }
 };
 

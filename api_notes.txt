@@ -1,0 +1,61 @@
+listing: 211870813
+
+/listings/:listing_id/favored-by
+
+https://openapi.etsy.com/v2/
+
+?api_key={YOUR_API_KEY}
+
+l1g165k002v7w3gtzaa683qp
+
+
+
+Get Regina's shop (getShop)
+https://openapi.etsy.com/v2/shops/9816366?api_key=l1g165k002v7w3gtzaa683qp
+
+Find all shop listings (shop_id)
+https://openapi.etsy.com/v2/shops/9816366/listings/active?api_key=l1g165k002v7w3gtzaa683qp
+
+<< Store all listings >>
+
+<< Loop through listings >>
+
+Get favored listings (listing_id)
+https://openapi.etsy.com/v2/listings/211870813/favored-by?api_key=l1g165k002v7w3gtzaa683qp
+
+<< Store all user_ids >>  ## My users
+
+<< Loop through users >>
+
+User favored listings (user_id)
+https://openapi.etsy.com/v2/users/53044384/favorites/listings?api_key=l1g165k002v7w3gtzaa683qp
+
+<< Store all store_ids >>
+
+<< Loop through all stores >>
+
+Find all shop listings (shop_id)
+https://openapi.etsy.com/v2/shops/9816366/listings/active?api_key=l1g165k002v7w3gtzaa683qp
+
+<< Loop through listings >>
+
+Get favored listings (listing_id)
+https://openapi.etsy.com/v2/listings/211870813/favored-by?api_key=l1g165k002v7w3gtzaa683qp
+
+<< Store all user_ids >>  ## Competition users
+
+
+
+
+
+Get listing (listing_id)
+https://openapi.etsy.com/v2/listings/211870813?api_key=l1g165k002v7w3gtzaa683qp
+https://openapi.etsy.com/v2/listings/211870813?method=GET&api_key=l1g165k002v7w3gtzaa683qp&fields=title,url&limit=100&includes=MainImage
+'title,url,num_favorers,views,taxonomy_path'
+
+Get shop from listing (listing_id)
+https://openapi.etsy.com/v2/shops/listing/211870813?api_key=l1g165k002v7w3gtzaa683qp
+
+export https_proxy=https://tfische:January16@proxy-newyork.aexp.com:8080
+
+	

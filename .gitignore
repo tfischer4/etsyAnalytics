@@ -1,5 +1,6 @@
 # password files
 **/.pwd
+**/local.json
 
 # api keys
 **/conf/keys.js

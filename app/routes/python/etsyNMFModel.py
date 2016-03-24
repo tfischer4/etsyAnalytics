@@ -59,48 +59,29 @@ def getListingsFromTag(baseURI, tag, apiKey, limit, offset, opener, proxyFlag):
 
 
 tag = urllib.quote_plus(query)
-kwList = []
-nGrams = []
-viewScore = []
-rankScore = []
-favorerScore = []
-priceList = []
-idList = []
 descriptions = []
-lookUp = {}
-listings = {}
+listings = []
 
 nbrListings = 300
 j = 0
-
 
 while (j < nbrListings):
     data = getListingsFromTag(baseURI, tag, apiKey, limit, offset, opener, proxyFlag)
     effective_limit = min(data["pagination"]["effective_limit"], len(data["results"]))
     for i in range(0, effective_limit):
-        if ("title" in data["results"][i] and "description" in data["results"][i]):
+        if ("title" in data["results"][i] and "description" in data["results"][i] and "price" in data["results"][i]):
 
-            listings[data["results"][i]["listing_id"]] = {
+            listings.append({
+                'listingID': data["results"][i]["listing_id"],
                 'price': (float(data["results"][i]["price"]) / float(data["results"][i]["quantity"])),
                 'view': data["results"][i]["views"],
-                'favorer': data["results"][i]["num_favorers"] }
+                'favorer': data["results"][i]["num_favorers"] })
             
-            d = ''
-            for l in data["results"][i]["tags"]:
-                for w in l.split():
-                    stem = PorterStemmer().stem_word(w)
-                    if stem in lookUp.keys():
-                        if w in lookUp[stem]['words'].keys():
-                            lookUp[stem]['words'][w] += 1
-                            lookUp[stem]['listings'].add(data["results"][i]["listing_id"])
-                        else:
-                            lookUp[stem]['words'][w] = 1
-                            lookUp[stem]['listings'].add(data["results"][i]["listing_id"])
-                    else:
-                        lookUp[stem] = {'words': { w: 1 },
-                                        'listings': {data["results"][i]["listing_id"]}}
-
-                    d = d + stem + ' '
+            d = ' '.join(data["results"][i]["tags"]) #''
+            # for l in data["results"][i]["tags"]:
+            #     for w in l.split():
+            #         stem = PorterStemmer().stem_word(w)
+            #         d = d + stem + ' '
 
             descriptions.append(d)
 
@@ -112,44 +93,50 @@ while (j < nbrListings):
 
 n_samples = 2000
 n_features = 1000
-n_topics = 5
-n_top_words = 5
+n_topics = 4
+n_top_words = 10
 minDF = 5
 maxDF = 0.8
 
-def print_top_words(model, feature_names, n_top_words, dic, listings):
+def print_top_words(model, feature_names, n_top_words, listings, X):
     topicNum = 1
     topics = []
     priceChart = []
     viewChart = []
     favorerChart = []
-    listingIDs = set()
+    listingIDs = []
     for topic_idx, topic in enumerate(model.components_):
-        l = []
+        t = []
         p = []
         v = []
         f = []
+        l = []
         for i in topic.argsort()[:-n_top_words - 1:-1]:
-            for key, value in sorted(dic[feature_names[i]]['words'].iteritems(), key=lambda (k,v): (v,k), reverse=True):
-                l.append(key)
-                break
-            listingIDs = listingIDs.union(dic[feature_names[i]]['listings'])
+            t.append(feature_names[i])
+            indices = X[:,i].nonzero()
+            for y in indices[0]:
+                if listings[y]['listingID'] not in l:
+                    l.append(listings[y]['listingID'])
+                    p.append(listings[y]['price'])
+                    v.append(listings[y]['view'])
+                    f.append(listings[y]['favorer'])  
+     
 
-        for listingID in listingIDs:
-            p.append(listings[listingID]['price'])
-            v.append(listings[listingID]['view'])
-            f.append(listings[listingID]['favorer'])
-
-        topics.append(l)
-        priceChart.append(['Topic-' + str(topicNum), np.mean(p), np.percentile(p, 25), np.percentile(p, 50), np.percentile(p, 75)])
-        viewChart.append(['Topic-' + str(topicNum), np.mean(v), np.percentile(v, 25), np.percentile(v, 50), np.percentile(v, 75)])
-        favorerChart.append(['Topic-' + str(topicNum), np.mean(f), np.percentile(f, 25), np.percentile(f, 50), np.percentile(f, 75)])
+        topics.append(t)
+        if len(l) > 0:
+            priceChart.append(['Topic-' + str(topicNum), np.mean(p), np.percentile(p, 25), np.percentile(p, 50), np.percentile(p, 75)])
+            viewChart.append(['Topic-' + str(topicNum), np.mean(v), np.percentile(v, 25), np.percentile(v, 50), np.percentile(v, 75)])
+            favorerChart.append(['Topic-' + str(topicNum), np.mean(f), np.percentile(f, 25), np.percentile(f, 50), np.percentile(f, 75)])
+            listingIDs.append(l)
         topicNum += 1
 
-    results = {'topics': topics, 
+    results = {
+        'topics': topics, 
         'priceChart': priceChart,
         'viewChart': viewChart,
-        'favorerChart': favorerChart}
+        'favorerChart': favorerChart
+        #'listingIDs': listingIDs
+        }
     print(json.dumps(results))
 
 
@@ -174,5 +161,5 @@ tf = tf_vectorizer.fit_transform(data_samples)
 nmf = NMF(n_components=n_topics, random_state=1, alpha=.2, l1_ratio=.5).fit(tfidf)
 
 tfidf_feature_names = tfidf_vectorizer.get_feature_names()
-print_top_words(nmf, tfidf_feature_names, n_top_words, lookUp, listings)
+print_top_words(nmf, tfidf_feature_names, n_top_words, listings, tfidf)
 

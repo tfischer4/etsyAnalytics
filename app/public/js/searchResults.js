@@ -1,4 +1,4 @@
-function drawPriceChart(d) {
+function drawChart(d, div, title) {
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'x');
   data.addColumn('number', 'values');
@@ -10,45 +10,28 @@ function drawPriceChart(d) {
 
 
   var options = {
-    title: 'Average Price by Topic',
+    title: title,
     curveType: 'function',
     series: [{'color': '#629DD1'}],
     intervals: { style: 'bars', color: 'black' },
     legend: 'none',
   };
 
-  var chart = new google.visualization.BarChart(document.getElementById('priceDiv'));
+  var chart = new google.visualization.BarChart(document.getElementById(div));
   chart.draw(data, options);
 }
 
-function drawViewChart(d) {
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'x');
-  data.addColumn('number', 'values');
-  data.addColumn({id:'i0', type:'number', role:'interval'});
-  data.addColumn({id:'i0', type:'number', role:'interval'});
-  data.addColumn({id:'i0', type:'number', role:'interval'});
-  data.addColumn({type: 'string', role: 'style'});
-  data.addRows(d);
-
-
-  var options = {
-    title: 'Average # of Views by Topic',
-    curveType: 'function',
-    series: [{'color': '#629DD1'}],
-    intervals: { style: 'bars', color: 'black' },
-    legend: 'none',
-  };
-
-  var chart = new google.visualization.BarChart(document.getElementById('viewDiv'));
-  chart.draw(data, options);
-}
 
 
 $("#tagSearch").submit(function(e)
 {
+  $("#searchButton").attr("disabled", true);  
   var postData = $("#tagInput").val();
   var formURL = $(this).attr("action");
+
+  // Prep DOM
+  $("#results").empty();
+
   $.ajax(
   {
     url : formURL,
@@ -62,6 +45,10 @@ $("#tagSearch").submit(function(e)
         var maxOpacity = 1.0;
         var minOpacity = 0.1;
 
+        // Draw Chart Section
+        var code = '<section class="wrapperLight style1" id="chartResults" style="text-align: center"></section>';
+        $("#results").append(code);
+
         // Draw Price Chart
         var nbrTopics = data.priceChart.length - 1;
         for (var i = nbrTopics; i >= 0; i--) {
@@ -70,9 +57,11 @@ $("#tagSearch").submit(function(e)
           data.priceChart[i][nbrElements+1] = opacityKey.concat(opacity.toString());
         }  
         
-        var code = '<div id="priceDiv" style="width: 500px; height: 250px;"></div>';
-        $("#searchResults").before(code);
-        drawPriceChart(data.priceChart);
+        var priceDiv = 'priceDiv';
+        var priceTitle = 'Average Price by Topic';
+        var code = '<div id="priceDiv" style="width: 400px; height: 250px; float: left;"></div>';
+        $("#chartResults").append(code);
+        drawChart(data.priceChart, priceDiv, priceTitle);
 
         // Draw View Chart
         var nbrTopics = data.viewChart.length - 1;
@@ -82,20 +71,26 @@ $("#tagSearch").submit(function(e)
           data.viewChart[i][nbrElements+1] = opacityKey.concat(opacity.toString());
         }  
         
-        var code = '<div id="viewDiv" style="width: 500px; height: 250px;"></div>';
-        $("#searchResults").before(code);
-        drawViewChart(data.viewChart);
+        var viewDiv = 'viewDiv';
+        var viewTitle = 'Average # of Views by Topic';
+        var code = '<div id="viewDiv" style="width: 400px; height: 250px; float: left;"></div>';
+        $("#chartResults").append(code);
+        drawChart(data.viewChart, viewDiv, viewTitle);
 
         // Draw Topic Keywords
         var nbrTopics = data.topics.length - 1;
         for (var i = nbrTopics; i >= 0; i--) {
           var nbrWords = data.topics[i].length - 1;
           var opacity = ((i+1)/(nbrTopics+1) * (maxOpacity - minOpacity));
+          var divID = 'topic' + i.toString();
+          var code = '<section class="wrapperSearch" id="' + divID + '" style="text-align: center"></section>';
+          $("#chartResults").after(code);
           for (var j = nbrWords; j >= 0; j--) {
-            var code = '<div class="searchResults" style="background: rgba(68,138,200,'+opacity.toString()+')"><p>' + data.topics[i][j] + '</p></div>';
-            $("#searchResults").after(code);
+            var code = '<div class="searchResults" style="background: rgba(68,138,200,'+opacity.toString()+');"><p>' + data.topics[i][j] + '</p></div>';
+            $("#" + divID).prepend(code);
           }
-        }     
+        }
+        $("#searchButton").attr("disabled", false);       
     },
     error: function(jqXHR, textStatus, errorThrown) 
     {
@@ -103,6 +98,5 @@ $("#tagSearch").submit(function(e)
     }
   });
   e.preventDefault(); //STOP default action
-  e.unbind(); //unbind. to stop multiple form submit.
 });
 

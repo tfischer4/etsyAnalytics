@@ -11,9 +11,10 @@ block content
         div(class="inputField")
           input(type="text", name="tagInput", id="tagInput", required)
         div(class="submitField")
-          input(type="submit", value="search")
-  section(class="wrapperLight style1")
-    div(class="container", id="searchResults", style="text-align:center")
+          input(type="submit", id="searchButton", value="search")
+  section(class="wrapperLight style1", id="results")
+  //section(class="wrapperLight style1", id="chartResults" style="text-align: center")
+  //section(class="wrapperLight style1", id="searchResults", style="text-align: center")
 
   script(src="/js/searchResults.js")
   include ./includes/foot.jade

@@ -28,7 +28,7 @@ count = 1
 
 favorsMin = 0
 
-dateMin = date.today() - timedelta(days=180)
+minDate = date.today() - timedelta(days=180)
 
 
 # In[3]:
@@ -38,19 +38,26 @@ passWd = getpass.getpass()
 opener = urllib2.build_opener(urllib2.ProxyHandler({'https': 'https://tfische:' + passWd + '@proxy-newyork.aexp.com:8080'}))
 proxyFlag = 1;
 
+apiParams = {
+    'baseURI': baseURI, 
+    'key': None, 
+    'apiKey': apiKey, 
+    'limit': limit, 
+    'offset': offset, 
+    'opener': opener, 
+    'proxyFlag': proxyFlag
+    }
 
-# In[4]:
 
 client = MongoClient('localhost', 27017)
 db = client.etsy
-
-
-# In[5]:
 
 def getJson(uri, opener, proxyFlag):
     global apiCnt
     apiCnt = apiCnt + 1
     
+    time.sleep( .1 )
+
     if proxyFlag == 1:
         response = opener.open(uri)
         return json.loads(response.read())
@@ -58,170 +65,182 @@ def getJson(uri, opener, proxyFlag):
         response = urllib2.urlopen(uri)
         return json.loads(response.read())
 
+# Get existing listings
+myListings = []
+cursor = db.shops.distinct("listings.listingID", {})
+myListings = list(cursor)
 
-# [Etsy API Doc](https://www.etsy.com/developers/documentation/reference/shop)
-# getShop
+# Get existing user ids from edges
+existingUsers = set(db.edges.distinct("user_id", {}))
 
-# In[6]:
-
-def getShop(baseURI, shopID, apiKey, opener, proxyFlag):
-    uri = baseURI + '/shops/' + str(shopID) + '?api_key=' + apiKey
-    return getJson(uri, opener, proxyFlag)
-
-
-# In[7]:
-
-from collections import OrderedDict
-shopDict = OrderedDict()
-data = getShop(baseURI, myShopID, apiKey, opener, proxyFlag)
-#Add error handling for not finding shop
-
-shopDict['shopID'] = data['results'][0]['shop_id']
-shopDict['listings'] = []
-#Maybe add more attributes in the future if needed
+# Get max create date from edges
+results = db.edges.aggregate([{"$group": {"_id": "null", "value": {"$max": "$create_date"}}}])
+maxCreateDt = datetime.fromtimestamp(results.next()['value']).date()
 
 
-# [Etsy API Doc](https://www.etsy.com/developers/documentation/reference/listing)
-# findAllShopListingsActive
-# 
-
-# In[8]:
-
-def getShopListings(baseURI, shopID, apiKey, limit, offset, opener, proxyFlag):
-    uri = baseURI + '/shops/' + str(shopID) + '/listings/active?api_key=' + apiKey + "&limit=" + str(limit) + "&offset=" + str(offset)
-    return getJson(uri, opener, proxyFlag)
-
-
-# In[9]:
-
-myListings = {}
-offset = 0
-count = 1
-while (offset < count):
-    data = getShopListings(baseURI, myShopID, apiKey, limit, offset, opener, proxyFlag)
-    #pprint(data)
-
-    count = data["count"]
-    effective_limit = min(data["pagination"]["effective_limit"], len(data["results"]))
-
-    for i in range(0,effective_limit):
-        if "listing_id" in data["results"][i]:
-            if data["results"][i]["num_favorers"] >= favorsMin:
-                myListings[data["results"][i]["listing_id"]] = data["results"][i]["num_favorers"]
-                shopDict['listings'].append({"listingID": data["results"][i]["listing_id"], 
-                                        "createDt": data["results"][i]["original_creation_tsz"],
-                                        "modifyDt": data["results"][i]["last_modified_tsz"],
-                                        "tags": data["results"][i]["tags"]})
-    offset = offset + limit
-
-
-# In[10]:
-
-#Load shopDict into mongoDB
-db.shops.count()
-db.shops.insert_one(shopDict)
-db.shops.count()
-db.shops.find_one({"shopID": myShopID})
-
+# cursor = db.shops.aggregate([{ "$match": {"shopID": myShopID} }, { "$unwind": "$listings" }, { "$group": { "_id": "null", "value": { "$max": "$listings.modifyDt"}}}])
+# cursorList = list(cursor)
+# if len(cursorList) > 0:
+#     dateMin = datetime.fromtimestamp(cursorList[0]['value']).date()
 
 # [Etsy API Doc](https://www.etsy.com/developers/documentation/reference/favoritelisting)
 # findAllListingFavoredBy
 
-# In[11]:
+#def getListingsFavoredBy(baseURI, listingID, apiKey, limit, offset, opener, proxyFlag):
+def getListingsFavoredBy(apiParams):
+    uri = str(apiParams['baseURI'] + 
+        '/listings/' + str(apiParams['key']) + 
+        '/favored-by?api_key=' + apiParams['apiKey'] + 
+        "&limit=" + str(apiParams['limit']) + 
+        "&offset=" + str(apiParams['offset']))
+    return getJson(uri, apiParams['opener'], apiParams['proxyFlag'])
 
-def getListingsFavoredBy(baseURI, listingID, apiKey, limit, offset, opener, proxyFlag):
-    uri = baseURI + '/listings/' + str(listingID) + '/favored-by?api_key=' + apiKey + "&limit=" + str(limit) + "&offset=" + str(offset)
-    return getJson(uri, opener, proxyFlag)
-
-
-# In[12]:
 
 users = set()
 for key in myListings:
     count = 1
     offset = 0
+    dtBool = True
     while (offset < count):
-        data = getListingsFavoredBy(baseURI, key, apiKey, limit, offset, opener, proxyFlag)
-        #pprint(data)
-        if apiCnt % 50 == 0: print str(apiCnt) + " " + str(len(users))
-      
+        #data = getListingsFavoredBy(baseURI, key, apiKey, limit, offset, opener, proxyFlag)
+        apiParams['key'] = key
+        apiParams['offset'] = offset
+        data = getListingsFavoredBy(apiParams)
+
+        if apiCnt % 50 == 0: print str(apiCnt) + " " + str(len(users))      
     
         count = data["count"]
         effective_limit = min(data["pagination"]["effective_limit"], len(data["results"]))
 
         for i in range(0,effective_limit):
             if "user_id" in data["results"][i] and "create_date" in data["results"][i]:
-                if datetime.fromtimestamp(data["results"][i]["create_date"]).date() > dateMin:
+                if datetime.fromtimestamp(data["results"][i]["create_date"]).date() > maxCreateDt:
                     users.add(data["results"][i]["user_id"])
+                else:
+                    dtBool = False
+                    break
             
-        offset = offset + limit
+        if dtBool: 
+            offset = offset + limit
+        else:
+            break
 
+newUsers = users.difference(existingUsers)
+users = users.union(existingUsers)
 
 # [Etsy API Doc](https://www.etsy.com/developers/documentation/reference/favoritelisting)
 # findAllUserFavoriteListings
 
 # In[13]:
 
-def getUserFavoriteListings(baseURI, userID, apiKey, limit, offset, opener, proxyFlag):
-    uri = baseURI + '/users/' + str(userID) + '/favorites/listings?api_key=' + apiKey + "&limit=" + str(limit) + "&offset=" + str(offset)
-    return getJson(uri, opener, proxyFlag)
+#def getUserFavoriteListings(baseURI, userID, apiKey, limit, offset, opener, proxyFlag):
+def getUserFavoriteListings(apiParams):
+    uri = str(apiParams['baseURI'] + 
+        '/users/' + str(apiParams['key']) + 
+        '/favorites/listings?api_key=' + apiParams['apiKey'] + 
+        "&limit=" + str(apiParams['limit']) + 
+        "&offset=" + str(apiParams['offset']))
+    print uri
+    # exit()
+    return getJson(uri, apiParams['opener'], apiParams['proxyFlag'])
 
 
-# In[17]:
+def getEdges(users, minDate, apiParams):
+    edges = []
 
-userFavorites = []
+    j = 0
+    for key in users:
+        count = 1
+        offset = 0
+        dtBool = True
+        while (offset < count):
+            #data = getUserFavoriteListings(baseURI, key, apiKey, limit, offset, opener, proxyFlag)
+            apiParams['key'] = key
+            apiParams['offset'] = offset
+            data = getUserFavoriteListings(apiParams)
+
+            if apiCnt % 100 == 0: print str(apiCnt) +" "+ str(len(users)) 
+            
+            count = data["count"]
+            if count >= 1000:
+                j = j - 1
+                break
+                
+            effective_limit = min(data["pagination"]["effective_limit"], len(data["results"]))
+
+            for i in range(0,effective_limit):
+                edge = {}
+                if "listing_id" in data["results"][i] and "create_date" in data["results"][i]:
+                    if datetime.fromtimestamp(data["results"][i]["create_date"]).date() > minDate:
+                        edge = data["results"][i]
+                        edge['relatedShops'] = [myShopID]
+                        if edge['listing_id'] in myListings:
+                            edge['shopID'] = myShopID
+                        else: edge['shopID'] = None
+                        edges.append(edge)
+                    else:
+                        dtBool = False
+                        break
+
+            if dtBool:
+                offset = offset + limit
+            else:
+                break
+            
+        j = j + 1
+    return edges
+
 edges = []
-#listings = set()
-from collections import defaultdict
-listings = defaultdict(int)
-j = 0
-for key in users:
-    count = 1
-    offset = 0
-    userFavorites.insert(j, {'user_id':key})
-    while (offset < count):
-        data = getUserFavoriteListings(baseURI, key, apiKey, limit, offset, opener, proxyFlag)
-        #pprint(data)
-        if apiCnt % 100 == 0: print str(apiCnt) +" "+ str(len(users)) +" "+ str(len(userFavorites))
-        
-        count = data["count"]
-        if count >= 1000:
-            j = j - 1
-            break
-            
-        effective_limit = min(data["pagination"]["effective_limit"], len(data["results"]))
-
-        for i in range(0,effective_limit):
-            edge = {}
-            if "listing_id" in data["results"][i] and "create_date" in data["results"][i]:
-                if datetime.fromtimestamp(data["results"][i]["create_date"]).date() > dateMin:
-                    userFavorites[j][data["results"][i]["listing_id"]] = 1
-                    #listings.add(data["results"][i]["listing_id"])
-                    listings[data["results"][i]["listing_id"]] += 1
-                    edge = data["results"][i]
-                    edge['relatedShops'] = [myShopID]
-                    if edge['listing_id'] in myListings.keys():
-                        edge['shopID'] = myShopID
-                    else: edge['shopID'] = None
-                    edges.append(edge)
-            
-        offset = offset + limit
-        
-    j = j + 1
-
+edges = getEdges(existingUsers, maxCreateDt, apiParams)
+edges = edges + getEdges(newUsers, minDate, apiParams)
 
 # In[18]:
-
 #Load edges into mongoDB
-db.edges.count()
-db.edges.insert_many(edges)
-db.edges.count()
+for e in edges:
+    results = db.edges.update_one(
+        {'$and': [{"listing_id": e['listing_id']}, {"user_id": e['user_id']}]},
+        {'$setOnInsert': {
+            "listing_id": e['listing_id'],
+            "create_date": e['create_date'],
+            "shopID": e['shopID'],
+            "listing_state": e['listing_state'],
+            "user_id": e['user_id'],
+            "relatedShops": e['relatedShops']
+            }
+        },
+        upsert = True
+    )
+    if results.upserted_id is None:
+        db.edges.update_one(
+            {'$and': [{"listing_id": e['listing_id']}, {"user_id": e['user_id']}]},
+            {'$set': {
+                "create_date": e['create_date'],
+                "shopID": e['shopID'],
+                "listing_state": e['listing_state']
+                }
+            },
+            {'$addToSet': {"relatedShops": e['relatedShops']}}
+        )
 
+def updateEdges(db):
+    shops = db.shops.aggregate([{"$group": {"_id": "$shopID", "listings": {"$push": "$listings.listingID"}}}])
+    shops = list(shops)
 
-# In[19]:
+    for s in shops:
+        shopID = s['_id']
+        db.edges.update_many(
+            {'listing_id': {'$in': s['listings'][0]}},
+            {'$set': {'shopID': shopID}}
+        )
+        users = db.edges.distinct("user_id", {"shopID": shopID})
+        for u in users:
+            db.edges.update_many(
+                {'user_id': u, 'shopID': {'$ne': shopID}},
+                {'$addToSet': {'relatedShops': s}}
+            )
 
-db.edges.find_one()
-
+updateEdges(db)
+exit()
 
 # In[ ]:
 
@@ -231,7 +250,7 @@ sortedListings = sorted(listings, key=listings.get, reverse=True)
 
 # In[ ]:
 
-z = myListings.keys()
+z = myListings
 for item in sortedListings:
     if item not in z:
         print "https://www.etsy.com/listing/" + str(item) +"?nbrOfUsers="+ str(listings[item])

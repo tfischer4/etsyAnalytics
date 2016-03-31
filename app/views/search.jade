@@ -1,20 +1,23 @@
-extends layout
+doctype html
+html
+  include ./includes/head.jade
+  body(id="top")
+    if auth
+      include ./includes/headerSecure.jade
+    else
+      include ./includes/header.jade
+    section(id="main" class="wrapper style1")
+      header(class="major")
+        h2 #{title}
+        p Find tags that are the most predictive of top Etsy search results
 
-block content
-  section(id="main" class="wrapper style1")
-    header(class="major")
-      h2 #{title}
-      p Find tags that are the most predictive of top Etsy search results
+      div(class="searchBox")
+        form(name="tagSearch", id="tagSearch", action="#{action}", method="post")
+          div(class="inputField")
+            input(type="text", name="tagInput", id="tagInput", required)
+          div(class="submitField")
+            input(type="submit", id="searchButton", value="search")
+    section(class="wrapperLight style1", id="results")
 
-    div(class="searchBox")
-      form(name="tagSearch", id="tagSearch", action="#{action}", method="post")
-        div(class="inputField")
-          input(type="text", name="tagInput", id="tagInput", required)
-        div(class="submitField")
-          input(type="submit", id="searchButton", value="search")
-  section(class="wrapperLight style1", id="results")
-  //section(class="wrapperLight style1", id="chartResults" style="text-align: center")
-  //section(class="wrapperLight style1", id="searchResults", style="text-align: center")
-
-  script(src="/js/searchResults.js")
-  include ./includes/foot.jade
+    script(src="/js/searchResults.js")
+    include ./includes/foot.jade

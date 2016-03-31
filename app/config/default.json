@@ -2,5 +2,10 @@
     "mongodb": 
 	{
 	    "uri": "mongodb://localhost/etsy"
+	},
+	"credentials":
+	{
+   		"keyFile": "./credentials/server.key",
+   		"certFile" : "./credentials/server.crt"
 	}
 }

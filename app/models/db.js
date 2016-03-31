@@ -35,6 +35,7 @@ process.on('SIGINT', function() {
 }); 
 
 // BRING IN YOUR SCHEMAS & MODELS // For example 
-require('./user');  
+require('./account');
+require('./accountDetail');  
 require('./edge');
 

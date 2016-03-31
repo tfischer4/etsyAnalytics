@@ -9,7 +9,7 @@ var edgeSchema = new mongoose.Schema({
 	relatedShops: [Number],
 	user_id: Number
 	},
-	{collection: 'etsy.edges'}
+	{collection: 'edges'}
 );
 
 var Edge = module.exports = mongoose.model('Edge', edgeSchema);

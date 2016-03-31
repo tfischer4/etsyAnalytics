@@ -58,4 +58,8 @@ https://openapi.etsy.com/v2/shops/listing/211870813?api_key=l1g165k002v7w3gtzaa6
 
 export https_proxy=https://tfische:January16@proxy-newyork.aexp.com:8080
 
+User Profile
+/users/:user_id/profile
+https://openapi.etsy.com/v2/users/32311574/profile?api_key=l1g165k002v7w3gtzaa683qp&limit=100&offset=0
+
 	

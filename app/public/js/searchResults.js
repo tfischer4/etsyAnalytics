@@ -40,7 +40,7 @@ $("#tagSearch").submit(function(e)
     success:function(data, textStatus, jqXHR) 
     {
         //data: return data from server
-        console.log(data);
+        // console.log(data);
         var opacityKey = "opacity: ";
         var maxOpacity = 1.0;
         var minOpacity = 0.1;
@@ -59,7 +59,7 @@ $("#tagSearch").submit(function(e)
         
         var priceDiv = 'priceDiv';
         var priceTitle = 'Average Price by Topic';
-        var code = '<div id="priceDiv" style="width: 400px; height: 250px; float: left;"></div>';
+        var code = '<div id="priceDiv" style="width: 400px; height: 250px; margin: 0 auto; display:inline-block;"></div>';
         $("#chartResults").append(code);
         drawChart(data.priceChart, priceDiv, priceTitle);
 
@@ -73,9 +73,23 @@ $("#tagSearch").submit(function(e)
         
         var viewDiv = 'viewDiv';
         var viewTitle = 'Average # of Views by Topic';
-        var code = '<div id="viewDiv" style="width: 400px; height: 250px; float: left;"></div>';
+        var code = '<div id="viewDiv" style="width: 400px; height: 250px; margin: 0 auto; display:inline-block;"></div>';
         $("#chartResults").append(code);
         drawChart(data.viewChart, viewDiv, viewTitle);
+
+        // Draw Favorites Chart
+        var nbrTopics = data.favorerChart.length - 1;
+        for (var i = nbrTopics; i >= 0; i--) {
+          var nbrElements = data.favorerChart[i].length - 1;
+          var opacity = ((i+1)/(nbrTopics+1) * (maxOpacity - minOpacity));
+          data.favorerChart[i][nbrElements+1] = opacityKey.concat(opacity.toString());
+        }  
+        
+        var favorerDiv = 'favorerDiv';
+        var viewTitle = 'Average # of Favorers by Topic';
+        var code = '<div id="favorerDiv" style="width: 400px; height: 250px; margin: 0 auto; display:inline-block;"></div>';
+        $("#chartResults").append(code);
+        drawChart(data.favorerChart, favorerDiv, viewTitle);
 
         // Draw Topic Keywords
         var nbrTopics = data.topics.length - 1;
@@ -89,6 +103,8 @@ $("#tagSearch").submit(function(e)
             var code = '<div class="searchResults" style="background: rgba(68,138,200,'+opacity.toString()+');"><p>' + data.topics[i][j] + '</p></div>';
             $("#" + divID).prepend(code);
           }
+          var code = '<hr style="margin: 0 0;">';
+          $("#" + divID).prepend(code);
         }
         $("#searchButton").attr("disabled", false);       
     },

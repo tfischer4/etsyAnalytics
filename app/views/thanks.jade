@@ -1,0 +1,11 @@
+doctype html
+html
+  include ./includes/head.jade
+  body(id="top")
+    if auth
+      include ./includes/headerSecure.jade
+    else
+      include ./includes/header.jade
+
+    section(id="elements" class="wrapper style1" style="text-align: center")
+      h2 Thank you!

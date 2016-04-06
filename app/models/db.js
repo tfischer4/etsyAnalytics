@@ -38,4 +38,5 @@ process.on('SIGINT', function() {
 require('./account');
 require('./accountDetail');  
 require('./edge');
+require('./prospect');
 

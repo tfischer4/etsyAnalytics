@@ -419,13 +419,13 @@
 
 /* Icon */
 
-	.icon {
+	.fa {
 		text-decoration: none;
 		border-bottom: none;
 		position: relative;
 	}
 
-		.icon:before {
+		.fa:before {
 			-moz-osx-font-smoothing: grayscale;
 			-webkit-font-smoothing: antialiased;
 			font-family: FontAwesome;
@@ -434,11 +434,11 @@
 			text-transform: none !important;
 		}
 
-		.icon > .label {
+		.fa > .label {
 			display: none;
 		}
 
-		.icon.major {
+		.fa.major {
 			display: inline-block;
 			margin: 0 0 1.25em 0;
 			color: #ffffff;
@@ -617,6 +617,9 @@
 	}
 
 /* Table */
+	.pop-table { display: table; padding: 0; margin: 0; overflow: hidden;}
+	.pop-row { display: table-row; padding: 0; margin: 0; vertical-align: middle; height: 161px;}
+	.pop-cell { display: table-cell; padding: 0 0 0 0.5em; margin: 0; vertical-align: top;}
 
 	.table-wrapper {
 		-webkit-overflow-scrolling: touch;

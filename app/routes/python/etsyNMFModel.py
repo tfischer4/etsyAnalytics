@@ -77,7 +77,12 @@ while (j < nbrListings):
                 'view': data["results"][i]["views"],
                 'favorer': data["results"][i]["num_favorers"] })
             
-            d = ' '.join(data["results"][i]["tags"]) #''
+            d = '\035'.join(data["results"][i]["tags"])
+            # searchObj = re.findall( r'(?u)\w[^\035]+\035', d)
+            # print(repr(d))
+            # print(searchObj)
+            # exit()
+
             # for l in data["results"][i]["tags"]:
             #     for w in l.split():
             #         stem = PorterStemmer().stem_word(w)
@@ -94,7 +99,7 @@ while (j < nbrListings):
 n_samples = 2000
 n_features = 1000
 n_topics = 4
-n_top_words = 10
+n_top_words = 15
 minDF = 5
 maxDF = 0.8
 
@@ -149,7 +154,7 @@ data_samples = descriptions
 
 # Use tf-idf features for NMF.
 tfidf_vectorizer = TfidfVectorizer(max_df=maxDF, min_df=minDF, #max_features=n_features,
-                                   stop_words='english')
+                                   stop_words='english', analyzer='word', token_pattern=r'(?u)\w[^\035]+\035')
 tfidf = tfidf_vectorizer.fit_transform(data_samples)
 
 # Use tf (raw term count) features for LDA.

@@ -1,0 +1,20 @@
+doctype html
+html
+  include ./includes/head.jade
+  body(id="top")
+    if auth
+      include ./includes/headerSecure.jade
+    else
+      include ./includes/header.jade
+    section(id="one" class="wrapper style1" style="text-align: center")
+      h1 Thank you for your interest 
+      p Provide your contact information to request access
+      br
+      h4 #{info}
+      form(role='form', id="reqForm", action="/request",method="post", style='max-width: 300px; margin: 0 auto;')
+        .form-group(style='margin: 5px auto;')
+            input.form-control(id="name" title="Username must contain at least 2 characters", required, pattern=".{2,}", type='text', name="name", placeholder='Name')
+        .form-group(style='margin: 5px auto;')
+          input.form-control(required, title="Please enter valid email", pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$", type='text', name="email", placeholder='Email Address')
+        .form-group
+          input.form-control(type='submit', value='submit')

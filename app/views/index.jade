@@ -10,51 +10,54 @@ html
     section(id="banner")
       div(class="inner")
         h2 Cardo Analytics
-        p Data insights for Etsy Sellers
+        //p Data insights for Etsy Sellers
+        p Launching Summer 2016
         ul(class="actions")
-          li: a(href="/register" class="button big special") Sign Up
-          li: a(href="#elements" class="button big alt") Learn More
+          if !auth
+            li: a(href="/request" class="button big special") Request Access
+            //li: a(href="/register" class="button big special") Sign Up
+            //li: a(href="#elements" class="button big alt") Learn More
 
     section(id="elements" class="wrapper style1")
       header(class="major")
-        h2 Actionable data driven solutions
-        p Cardo Analytics combines the power of technology, science, and data to help Etsy sellers make more informed decisions
+        h2 Grow your business
+        p Cardo Analytics provides solutions to help Etsy sellers make more informed decisions on marketing, new product development, and staying ahead of the competition.
       div(class="container")
         div(class="row")
           div(class="4u")
             section(class="special box")
-              i(class="icon fa-code major")
-              h3 Technology
-              p Eu non col commodo accumsan ante mi. Commodo consectetur sed mi adipiscing accumsan ac nunc tincidunt lobortis.
+              i(class="fa fa-shopping-bag major")
+              h3 Product
+              p Thinking about what products to offer? Discover products outside your shop that your customers are favoriting.
           div(class="4u")
             section(class="special box")
-              i(class="icon fa-flask major")
-              h3 Science
-              p Eu non col commodo accumsan ante mi. Commodo consectetur sed mi adipiscing accumsan ac nunc tincidunt lobortis.
+              i(class="fa fa-hashtag major")
+              h3 Marketing
+              p What are the best tags to market your product? Find the tags that best represent top Etsy search results.
           div(class="4u")
             section(class="special box")
-              i(class="icon fa-database major")
-              h3 Data
-              p Eu non col commodo accumsan ante mi. Commodo consectetur sed mi adipiscing accumsan ac nunc tincidunt lobortis.
+              i(class="fa fa-trophy major")
+              h3 Competition
+              p Who are your competitors? Discover which shops and products your customers are engaged with.
 
     section(id="two" class="wrapper style2")
       header(class="major")
-        h2 This is the second section
-        p Cardo Analytics combines the power of technology and science to help Etsy sellers make more informed decisions
+        h2 Solutions for every shop
+        p Cardo Analytics provides solutions that will help grow your business
       div(class="container")
         div(class="row")
           div(class="6u")
             section(class="special")
-              a(href="#" class="image fit"): img(src="images/pic01.jpg" alt="")
-              h3 Mollis adipiscing nisl
-              p Eget mi ac magna cep lobortis faucibus accumsan enim lacinia adipiscing metus urna adipiscing cep commodo id. Ac quis arcu amet. Arcu nascetur lorem adipiscing non faucibus odio nullam arcu lobortis. Aliquet ante feugiat. Turpis aliquet ac posuere volutpat lorem arcu aliquam lorem.
+              a(href="#" class="image fit"): img(src="images/search.png" alt="")
+              h3 Tag Optimization
+              p Analyzes the top Etsy results to return the most pertenant products tags. To provide additional levels of insight, our algorithms learn the different segments of products and groups the tags accordingly into topics. Key statistics on price, views, and favorites are provided for each topic.  
               ul(class="actions")
                 li: a(href="#" class="button alt") Learn More
           div(class="6u")
             section(class="special")
-              a(href="#" class="image fit"): img(src="images/pic02.jpg" alt="")
-              h3 Mollis adipiscing nisl
-              p Eget mi ac magna cep lobortis faucibus accumsan enim lacinia adipiscing metus urna adipiscing cep commodo id. Ac quis arcu amet. Arcu nascetur lorem adipiscing non faucibus odio nullam arcu lobortis. Aliquet ante feugiat. Turpis aliquet ac posuere volutpat lorem arcu aliquam lorem.
+              a(href="#" class="image fit"): img(src="images/trending.png" alt="")
+              h3 Trending Products
+              p Analyzes the behaviors of customers that have favorited your products in the past to identify the products that they are favoriting now! Identify the latest trends and the needs of your customers to help shape your next product offering.
               ul(class="actions")
                 li: a(href="#" class="button alt") Learn More
 

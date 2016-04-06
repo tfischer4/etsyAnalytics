@@ -22,6 +22,9 @@
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^1.0.0",
-    "should": "~2.1.0"
+    "should": "~2.1.0",
+    "request": "~2.69.0",
+    "python-shell": "~0.4.0",
+    "config": "~1.19.0"
   }
 }

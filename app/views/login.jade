@@ -7,14 +7,16 @@ html
     else
       include ./includes/header.jade
 
-    section(id="one" class="wrapper style1" style="text-align: center")
-      h1 Login Page
-      p.lead Say something worthwhile here.
-      br
-      form(role='form', action="/login",method="post", style='max-width: 300px; margin: 0 auto;')
-        .form-group(style='margin: 5px auto;')
-          input.form-control(type='text', name="username", placeholder='Enter Username')
-        .form-group(style='margin: 5px auto;')
-          input.form-control(type='password', name="password", placeholder='Password')
-        .form-group
-          input.form-control(type='submit', value='Submit')
+    //section(id="one" class="wrapper style1" style="text-align: center")
+    section(id="main" class="wrapper style1" style="text-align: center")
+      header(class="major")
+        h2 Account Login
+        p Welcome back!
+        br
+        form(role='form', action="/login",method="post", style='max-width: 300px; margin: 0 auto;')
+          .form-group(style='margin: 5px auto;')
+            input.form-control(type='text', name="username", placeholder='Enter Username')
+          .form-group(style='margin: 5px auto;')
+            input.form-control(type='password', name="password", placeholder='Password')
+          .form-group
+            input.form-control(type='submit', value='Submit')
